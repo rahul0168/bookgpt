@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookGPT</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>BookGPT</h1>
+        <div class="search-bar">
+            <input type="text" placeholder="Search for books...">
+            <button>Search</button>
+        </div>
+    </header>
+    
+    <main>
+            <div class="book-list">
+                <!-- Example book item -->
+               
+                <!-- More book items can be added dynamically -->
+            </div>
+        
+    </main>
+
+    <div class="chat-interface">
+        <div class="chat-area">
+            <!-- Messages will be displayed here -->
+        </div>
+        <div class="user-input">
+            <input type="text" placeholder="Type your message...">
+            <button>Send</button>
+        </div>
+    </div>
+
+    <div class="loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading...</div>
+    </div>
+
+    <script >// Function to fetch books from the API endpoint
+        function fetchBooks() {
+            fetch('/bookgpt/api/getbooks')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch books');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Render the list of books in the frontend
+                renderBooks(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Handle error (e.g., display error message)
+            });
+        }
+        
+        function renderBooks(books) {
+            const booksContainer = document.querySelector('.book-list');
+            
+            books.forEach(book => {
+                const bookItem = document.createElement('div');
+                bookItem.classList.add('book-item');
+                
+                const bookCover = document.createElement('img');
+                bookCover.src = book.img;
+                bookCover.alt = book.name;
+                
+                const bookDetails = document.createElement('div');
+                bookDetails.classList.add('book-details');
+                
+                const bookTitle = document.createElement('h2');
+                bookTitle.textContent = book.name;
+                
+                const authorName = document.createElement('p');
+                authorName.textContent = book.author; // Adjust if you have author information in your book object
+                
+                const genre = document.createElement('p');
+                genre.textContent = book.genre; // Adjust if you have genre information in your book object
+                
+                const chatButtonContainer = document.createElement('div');
+                chatButtonContainer.classList.add('chat-button-container');
+                
+                const chatButton = document.createElement('button');
+                chatButton.textContent = 'Chat';
+                chatButton.classList.add('chat-btn');
+                
+                const chatLink = document.createElement('a');
+                chatLink.href = '/bookgpt/bookchat?id='+book.id; // Adjust the href accordingly
+                chatLink.appendChild(chatButton);
+                
+                chatButtonContainer.appendChild(chatLink);
+                
+                bookDetails.appendChild(bookTitle);
+                bookDetails.appendChild(authorName);
+                bookDetails.appendChild(genre);
+                bookDetails.appendChild(chatButtonContainer);
+                
+                bookItem.appendChild(bookCover);
+                bookItem.appendChild(bookDetails);
+                
+                booksContainer.appendChild(bookItem);
+            });
+        }
+        
+        // Call fetchBooks function to fetch and render the list of books when the page loads
+        window.onload = function() {
+            fetchBooks();
+        };
+    </script>
+</body>
+</html>

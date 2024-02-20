@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Chat</title>
+    <link rel="stylesheet" href="book-style.css">
+</head>
+<body>
+    <header>
+        <h1>Book Chat</h1>
+    </header>
+    
+    <main>
+        <div class="chat-container">
+            <div class="chat-box" id="chat-box">
+                <div class="message bot-message">Welcome to Book Chat! How can I assist you?</div>
+                <div id="user-message"></div>
+            </div>
+            <div class="user-input-container">
+                <input type="text" id="chat-msg" placeholder="Type your message...">
+                <button id="send-btn" onclick="sendMessageToChat()">Send</button>
+            </div>
+        </div>
+    </main>
+
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">AI is processing...</div>
+    </div>
+
+    <script >
+
+        let sourceId;
+        function fetchBookById(bookId) {
+            // API endpoint URL
+            const urlParams = new URLSearchParams(window.location.search);
+                // Get the value of the 'id' parameter
+            const id = urlParams.get('id');
+            const apiUrl = `/bookgpt/api/getbook.php?id=${id}`;
+            console.log(apiUrl);
+        
+            // Make a GET request to the API endpoint
+            fetch(apiUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch book details');
+                }
+                return response.json();
+            })
+            .then(bookDetails => {
+                // Handle the book details (e.g., display them in the UI)
+                displayBookDetails(bookDetails);
+                sourceId = bookDetails[0].source_id;
+                console.log(sourceId);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Handle error (e.g., display error message)
+            });
+        }
+                // Function to display book details in the UI
+        function displayBookDetails(bookDetails) {
+            // Display book details in the UI (replace this with your UI logic)
+            console.log('Book Details:', bookDetails);
+        }
+
+        window.onload = function() {
+            fetchBookById();
+        };
+
+        // Function to send message to chat API and append response to chat interface
+function sendMessageToChat() {
+    var message = document.getElementById('chat-msg').value;
+    const chatContainer = document.getElementById('user-message');
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message');
+    messageElement.classList.add('bot-message');
+    messageElement.textContent = message;
+    chatContainer.appendChild(messageElement);
+    document.getElementById('chat-msg').value = ' ';
+
+    // API endpoint URL
+    const apiUrl = '/bookgpt/api/chatMessage';
+    
+    // Data to send in the request body
+    const requestData = {
+        sourceId: sourceId,
+        messages: message 
+    };
+
+    // Options for the fetch request
+    const options = {
+        method: 'POST',
+      
+        body: JSON.stringify(requestData)
+    };
+
+    // Send POST request to chat API
+    fetch(apiUrl, options)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to send message to chat API');
+        }
+        return response.json();
+    })
+    .then(data => {
+        var content  = JSON.parse(data.message)
+        console.log(content);
+        // Append the received message to the chat interface
+        appendMessageToChat(content.content);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // Handle error (e.g., display error message)
+    });
+}
+
+// Function to append a message to the chat interface
+function appendMessageToChat(message) {
+    // Append the message to the chat interface (replace this with your actual UI logic)
+    const chatContainer = document.getElementById('user-message');
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message');
+    messageElement.classList.add('bot-message');
+    messageElement.textContent = message;
+    chatContainer.appendChild(messageElement);
+}
+    </script>
+</body>
+</html>
